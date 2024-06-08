@@ -1,13 +1,20 @@
-export function add(_lines,mouse,using){
+export function add(_lines,mouse,using,snap){
     let lines = [..._lines];
+    let place = {};
+    if (snap){
+        place = snap;
+    }
+    else{
+        place = mouse;
+    }
     if (!using){
         //start line
-        lines.push({a: {x: mouse.x, y: mouse.y}
-                   ,b: {x: mouse.x, y: mouse.y}});
+        lines.push({a: {x: place.x, y: place.y}
+                   ,b: {x: place.x, y: place.y}});
     }
     else{
         //finish line
-        lines[lines.length-1].b = {x: mouse.x, y: mouse.y};
+        lines[lines.length-1].b = {x: place.x, y: place.y};
     }
     return lines;
 }
