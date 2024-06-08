@@ -11,21 +11,24 @@ export function change(event,tool,using){
         return tool;
     }
 }
-export function lines(event,tool,using,_lines){
+export function lines(event,tool,using,_lines,selected){
     let mouse = {x: event.offsetX, y: event.offsetY};
     let lines = [..._lines];
+    let effect = {lines:lines,using:using};
     switch(tool){
         case "draw":
-            lines = lines_add(lines,mouse,using);
+            effect.lines = lines_add(lines,mouse,using);
+            effect.using = !effect.using;
             break;
-        case "select":
-            lines = lines_select(lines,mouse,using);
-            break;
+        /*case "select":
+            effect.lines = lines_select(lines,mouse,using);
+            effect.using = !effect.using;
+            break;*/
         case "remove":
-            lines = lines_remove(lines,mouse,using);
+            effect.lines = lines_remove(lines,mouse,using,selected);
             break;
     }
-    return lines;
+    return effect;
 }
 export function select(lines,mouse){
     let select_radius = 10;

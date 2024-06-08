@@ -23,3 +23,7 @@ body{
 .tool{
     position:relative;
 }
+.tool_pressed{
+    position:relative;
+    background-color:rgb(124, 124, 124);
+}

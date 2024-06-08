@@ -15,7 +15,10 @@ export function select(_lines,mouse,using){
     let lines = [..._lines];
     return lines;
 }
-export function remove(_lines,mouse,using){
+export function remove(_lines,mouse,using,selected){
     let lines = [..._lines];
+    if (selected){
+        lines.splice(lines.indexOf(selected),1); 
+    }
     return lines;
 }

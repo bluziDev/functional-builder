@@ -15,16 +15,23 @@ var mouse = {x:0, y:0};
 var lines = [];
 var select = {hovering: null, selected: null};
 function onclick_canvas(event){
+    mouse = {x: event.offsetX, y: event.offsetY};
     //change selection
-    if (tool == "select" || tool == "remove"){
+    if (tool == "select"){
         if (select.selected){
             select.hovering = tool_select(lines,mouse);
         }
         select.selected = select.hovering;
+        using = (select.selected);
     }
-    //modify/add lines
-    lines = tool_lines(event,tool,using,lines);
-    using = !using;
+    else{
+        //modify/add/remove lines
+        let effect = tool_lines(event,tool,using,lines,select.hovering);
+        lines = effect.lines;
+        using = effect.using;
+        select.hovering = tool_select(lines,mouse);
+    }
+    //using = !using;
     //console.log(lines);
     //console.log("select: " + toString(select));
 }
@@ -42,7 +49,9 @@ const toolbar = document.getElementById("toolbar");
 var tool = "draw";
 var using = false;
 function onclick_tool(event){
+    document.getElementById(tool).className = "tool";
     tool = tool_change(event,tool,using);
+    document.getElementById(tool).className = "tool_pressed";
     console.log(tool);
 }
 toolbar.addEventListener("click",onclick_tool);
@@ -52,7 +61,9 @@ function loop() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.beginPath();
     draw_lines(ctx,lines,(tool == "draw" && using) ? mouse : null);
-    draw_highlight(ctx,select.hovering);
+    if (tool != "draw"){
+        draw_highlight(ctx,select.hovering);
+    }
     ctx.stroke();
 
     window.requestAnimationFrame(loop);
