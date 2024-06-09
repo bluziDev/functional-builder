@@ -47,3 +47,28 @@ export function select(lines,mouse,tool,using){
     }
     return null;
 }
+export function snap(hover,mouse,using,lines,snap_radius){
+    let snap = null;
+    let outside_start;
+    if (hover){
+        let nearest_point = nearest_on_line({x:mouse.x, y:mouse.y}
+                                           ,{x:hover.a.x, y:hover.a.y}
+                                           ,{x:hover.b.x, y:hover.b.y});
+        //let disto_nearest = Math.hypot(mouse.x-nearest_point.x, mouse.y-nearest_point.y);
+        let disto_a = Math.hypot(mouse.x-hover.a.x, mouse.y-hover.a.y);
+        let disto_b = Math.hypot(mouse.x-hover.b.x, mouse.y-hover.b.y);
+        let nearest_end = disto_a <= disto_b ? hover.a : hover.b;
+        let disto_end = nearest_end == hover.a ? disto_a : disto_b;
+        let point = disto_end <= snap_radius ? nearest_end : nearest_point;
+        snap = point;
+        if (using){
+            let last_line = lines[lines.length-1];
+            let dis_from_start = Math.hypot(mouse.x-last_line.a.x
+                                           ,mouse.y-last_line.a.y);
+            if (dis_from_start <= snap_radius){
+                snap = null;
+            }
+        }
+    }
+    return snap;
+}

@@ -4,7 +4,8 @@ import {lines as draw_lines
 import { nearest_on_line } from "./nearest_on_line.js";
 import {change as tool_change
        ,lines as tool_lines
-       ,select as tool_select} from "./tool.js";
+       ,select as tool_select
+       ,snap as tool_snap} from "./tool.js";
 
 //canvas
 const canvas = document.getElementById("canvas");
@@ -35,6 +36,7 @@ function onclick_canvas(event){
         using = effect.using;
         select.hovering = tool_select(lines,mouse);
     }
+    snap = tool_snap(select.hovering,mouse,using,lines,snap_radius);
     //using = !using;
     //console.log(lines);
     //console.log("select: " + toString(select));
@@ -43,15 +45,7 @@ function onmousemove_canvas(event){
     mouse = {x: event.offsetX, y: event.offsetY};
     if (!select.selected){
         select.hovering = tool_select(lines,mouse);
-        let hover = select.hovering;
-        if (hover){
-            snap = nearest_on_line({x:mouse.x, y:mouse.y}
-                                  ,{x:hover.a.x, y:hover.a.y}
-                                  ,{x:hover.b.x, y:hover.b.y});
-        }
-        else{
-            snap = null;
-        }
+        snap = tool_snap(select.hovering,mouse,using,lines,snap_radius);
     }
 }
 canvas.addEventListener("click",onclick_canvas);
