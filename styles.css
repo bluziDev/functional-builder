@@ -6,9 +6,12 @@
 #toolbar{
     position:absolute;
 }
-.line_button{
-    background-color: rgba(255, 255, 255, 0.5);
+.line_menu{
     position:absolute;
+}
+.line_button{
+    position:absolute;
+    background-color: rgba(255, 255, 255, 0.5);
 }
 body{
     background-color: slategrey;

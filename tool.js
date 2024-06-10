@@ -32,6 +32,7 @@ export function lines(event,tool,using,_lines,selected,snap){
 }
 export function select(lines,mouse,tool,using){
     let select_radius = 10;
+    let proposed = null;
     for (const line of lines){
         let on_last = lines.indexOf(line) == lines.length-1;
         if (!on_last || (on_last && 
@@ -41,11 +42,21 @@ export function select(lines,mouse,tool,using){
                                          ,{x:line.b.x, y:line.b.y});
             if (Math.hypot(mouse.x-nearest.x,mouse.y-nearest.y)
             <= select_radius){
-                return line;
+                let nearest_end_dis = Math.min
+                (
+                    Math.hypot(mouse.x-line.a.x, mouse.y-line.a.y)
+                   ,Math.hypot(mouse.x-line.b.x, mouse.y-line.b.y)
+                );
+                if (nearest_end_dis<=select_radius){
+                    return line;
+                }
+                else if (!proposed){
+                    proposed = line;
+                }
             }
         }
     }
-    return null;
+    return proposed;
 }
 export function snap(hover,mouse,using,lines,snap_radius){
     let snap = null;

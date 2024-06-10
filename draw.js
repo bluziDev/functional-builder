@@ -17,13 +17,13 @@ export function lines(ctx,_lines,drawing,snap){
         ctx.lineTo(end.x,end.y);
     });
 }
-export function highlight(ctx,line){
+export function highlight(ctx,line,color){
     if (line){
         ctx.stroke();
         let last_width = ctx.lineWidth;
         let last_color = ctx.strokeStyle;
         ctx.lineWidth = 4;
-        ctx.strokeStyle = "orchid";
+        ctx.strokeStyle = color;
         ctx.beginPath();
         ctx.moveTo(line.a.x,line.a.y);
         ctx.lineTo(line.b.x,line.b.y);

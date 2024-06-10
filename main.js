@@ -6,6 +6,10 @@ import {change as tool_change
        ,lines as tool_lines
        ,select as tool_select
        ,snap as tool_snap} from "./tool.js";
+import {onclick_button as onclick_linebutton
+       ,move as line_move} from "./lines.js";
+import {open as menu_open
+       ,close as menu_close} from "./menu.js";
 
 //canvas
 const canvas = document.getElementById("canvas");
@@ -17,6 +21,10 @@ canvas.setAttribute("height", canvas.parentNode.offsetHeight);
 var mouse = {x:0, y:0};
 var lines = [];
 var select = {hovering: null, selected: null};
+var line_menu;
+var line_effect = "";
+var line_unaffected = null;
+var mouse_unaffected;
 var snap = null;
 var snap_radius = 10;
 function onclick_canvas(event){
@@ -24,9 +32,35 @@ function onclick_canvas(event){
     //change selection
     if (tool == "select"){
         if (select.selected){
-            select.hovering = tool_select(lines,mouse);
+            if (line_effect){
+                if (line_effect == "move"){
+                    line_effect = "";
+                }
+            }
+            else{
+                if (select.selected != select.hovering){
+                    menu_close(line_menu);
+                }
+                select.hovering = tool_select(lines,mouse);
+            }
         }
-        select.selected = select.hovering;
+        else if (select.hovering){
+            select.selected = select.hovering;
+            line_menu = menu_open(select.selected);
+            line_menu.addEventListener("click",function(event){
+                let click_effect = onclick_linebutton(event,select.selected);
+                line_effect = click_effect.effect;
+                line_unaffected = {a: {...select.selected.a}
+                                  ,b: {...select.selected.b}};
+                mouse_unaffected = {...mouse};
+                if (click_effect.close){
+                    menu_close(line_menu);
+                }
+            });
+        }
+        if (!line_effect){
+            select.selected = select.hovering;
+        }
         using = (select.selected);
     }
     else{
@@ -43,9 +77,14 @@ function onclick_canvas(event){
 }
 function onmousemove_canvas(event){
     mouse = {x: event.offsetX, y: event.offsetY};
-    if (!select.selected){
+    if (!line_effect){
         select.hovering = tool_select(lines,mouse);
         snap = tool_snap(select.hovering,mouse,using,lines,snap_radius);
+    }
+    else{
+        if (line_effect == "move"){
+            line_move(select.selected,line_unaffected,mouse,mouse_unaffected);
+        }
     }
 }
 canvas.addEventListener("click",onclick_canvas);
@@ -54,6 +93,7 @@ canvas.addEventListener("mousemove",onmousemove_canvas);
 //toolbar
 const toolbar = document.getElementById("toolbar");
 var tool = "draw";
+var tool_sub = "";
 var using = false;
 function onclick_tool(event){
     if (event.target.tagName == "BUTTON"){
@@ -71,7 +111,8 @@ function loop() {
     ctx.beginPath();
     draw_lines(ctx,lines,(tool == "draw" && using) ? mouse : null,snap);
     if (tool != "draw"){
-        draw_highlight(ctx,select.hovering);
+        draw_highlight(ctx,select.hovering,"black")
+        draw_highlight(ctx,select.selected,"orchid");
     }
     else{
         draw_snap(ctx,snap);
