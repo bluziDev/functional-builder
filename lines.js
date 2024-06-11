@@ -36,9 +36,9 @@ export function onclick_button(event,line){
             break;
     }
 }
-export function move(line,line_pre,mouse,mouse_pre){
-    line.a.x = line_pre.a.x + (mouse.x-mouse_pre.x);
-    line.a.y = line_pre.a.y + (mouse.y-mouse_pre.y);
-    line.b.x = line_pre.b.x + (mouse.x-mouse_pre.x);
-    line.b.y = line_pre.b.y + (mouse.y-mouse_pre.y);
+export function move(line,amount){
+    line.a.x += amount.x;
+    line.a.y += amount.y;
+    line.b.x += amount.x;
+    line.b.y += amount.y;
 }
