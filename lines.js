@@ -1,11 +1,25 @@
 export function add(_lines,mouse,using,snap){
     let lines = [..._lines];
     let place = {};
-    if (snap){
-        place = snap;
+    place = mouse;
+    if (snap.modifiers.length > 0){
+        let line = lines[lines.length-1];
+        snap.modifiers.forEach((mod,index) => {
+            if (mod.id == "line_angle"){
+                //project endpoint onto angle
+                let ang = -parseFloat(mod.value)*(Math.PI/180);
+                let a = {x: place.x - line.a.x,y: place.y - line.a.y};
+                let b = {x: Math.cos(ang),y: Math.sin(ang)};
+                let length = a.x * b.x + a.y * b.y;
+                place = {x: line.a.x + length * b.x
+                      ,y: line.a.y + length * b.y};
+            }
+            snap.modifiers[index].remove();
+            snap.modifiers.splice(index,1);
+        });
     }
-    else{
-        place = mouse;
+    else if (snap.coords){
+        place = snap.coords;
     }
     if (!using){
         //start line

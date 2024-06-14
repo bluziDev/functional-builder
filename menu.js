@@ -11,7 +11,7 @@ export function open(line){
     board.insertBefore(menu,document.getElementById("canvas"));
     menu.style.top=String((line.a.y+line.b.y)/2) + "px";
     menu.style.left=String((line.a.x+line.b.x)/2) + "px";
-    console.log(menu.style);
+    //console.log(menu.style);
     return menu;
 }
 export function close(menu){

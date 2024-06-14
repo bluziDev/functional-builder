@@ -41,7 +41,7 @@ export function select(lines,mouse,tool,using){
                                          ,{x:line.a.x, y:line.a.y}
                                          ,{x:line.b.x, y:line.b.y});
             if (Math.hypot(mouse.x-nearest.x,mouse.y-nearest.y)
-            <= select_radius){
+                <= select_radius){
                 let nearest_end_dis = Math.min
                 (
                     Math.hypot(mouse.x-line.a.x, mouse.y-line.a.y)

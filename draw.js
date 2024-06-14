@@ -1,13 +1,25 @@
+import { get_delta_angle } from "./get_delta_angle.js";
 export function lines(ctx,_lines,drawing,snap){
     let lines = [..._lines];
     lines.forEach((line,index) => {
         let end = {}
         if (drawing && index == lines.length-1){
-            if (snap){
-                end = snap;
+            end = drawing;
+            if (snap.modifiers.length > 0){
+                snap.modifiers.forEach(mod => {
+                    if (mod.id == "line_angle"){
+                        //project endpoint onto angle
+                        let ang = -parseFloat(mod.value)*(Math.PI/180);
+                        let a = {x: end.x - line.a.x,y: end.y - line.a.y};
+                        let b = {x: Math.cos(ang),y: Math.sin(ang)};
+                        let length = a.x * b.x + a.y * b.y;
+                        end = {x: line.a.x + length * b.x
+                              ,y: line.a.y + length * b.y};
+                    }
+                });
             }
-            else{
-                end = drawing;
+            else if (snap.coords){
+                end = snap.coords;
             }
         }
         else{
