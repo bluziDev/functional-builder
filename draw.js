@@ -5,20 +5,7 @@ export function lines(ctx,_lines,drawing,snap){
         let end = {}
         if (drawing && index == lines.length-1){
             end = drawing;
-            if (snap.modifiers.length > 0){
-                snap.modifiers.forEach(mod => {
-                    if (mod.id == "line_angle"){
-                        //project endpoint onto angle
-                        let ang = -parseFloat(mod.value)*(Math.PI/180);
-                        let a = {x: end.x - line.a.x,y: end.y - line.a.y};
-                        let b = {x: Math.cos(ang),y: Math.sin(ang)};
-                        let length = a.x * b.x + a.y * b.y;
-                        end = {x: line.a.x + length * b.x
-                              ,y: line.a.y + length * b.y};
-                    }
-                });
-            }
-            else if (snap.coords){
+            if (snap.coords){
                 end = snap.coords;
             }
         }
@@ -46,7 +33,8 @@ export function highlight(ctx,line,color){
     }
 }
 export function snap(ctx,snap){
-    if (snap){
+    if (!snap.hide && snap.coords){
+        let coords = snap.coords;
         let snap_radius = 10;
         let snap_width = 2;
         let snap_color = "RoyalBlue";
@@ -56,8 +44,8 @@ export function snap(ctx,snap){
         ctx.lineWidth = snap_width;
         ctx.strokeStyle = snap_color;
         ctx.beginPath();
-        ctx.moveTo(snap.x+snap_radius,snap.y);
-        ctx.arc(snap.x,snap.y,snap_radius,0,2*Math.PI);
+        ctx.moveTo(coords.x+snap_radius,coords.y);
+        ctx.arc(coords.x,coords.y,snap_radius,0,2*Math.PI);
         ctx.stroke();
         ctx.strokeStyle = last_color;
         ctx.lineWidth = last_width;

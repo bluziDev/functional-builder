@@ -26,7 +26,7 @@ var lines = [];
 var select = {hovering: null, selected: null};
 var line_menu;
 var line_effect = {effect: ""};
-var snap = {coords: null, modifiers: []};
+var snap = {coords: null,modifiers: [],hide: false};
 var snap_radius = 10;
 var line_input = null;
 function onclick_canvas(event){
@@ -67,7 +67,7 @@ function onclick_canvas(event){
         using = effect.using;
         select.hovering = tool_select(lines,mouse);
     }
-    snap.coords = tool_snap(select.hovering,mouse,using,lines,snap_radius);
+    snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
     //using = !using;
     //console.log(lines);
     //console.log("select: " + toString(select));
@@ -76,7 +76,7 @@ function onmousemove_canvas(event){
     mouse = {x: event.offsetX, y: event.offsetY};
     if (!line_effect.effect){
         select.hovering = tool_select(lines,mouse);
-        snap.coords = tool_snap(select.hovering,mouse,using,lines,snap_radius);
+        snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
     }
     else{
         if (line_effect.effect == "move"){
@@ -91,23 +91,34 @@ function onmousemove_canvas(event){
 }
 function onmouseleave_canvas(event){
     select.hovering = null;
-    snap.coords = null;
+    //snap.coords = null;
 }
 function onkey(event){
     if (mouse_focus.focus == canvas){
         let key = event.key;
-        if (key == "a"){
-            if (tool == "draw" && using){
-                let line_input = document.createElement("input");
-                snap.modifiers.push(line_input);
-                line_input.type = "text";
-                line_input.className = "line_button"
-                line_input.id = "line_angle";
-                line_input.style.top = String(mouse.y) + "px";
-                line_input.style.left = String(mouse.x) + "px";
-                let board = document.getElementById("board");
-                board.insertBefore(line_input,canvas);
+        if (tool == "draw" && using){
+            if (key == "a"){
+                let mod = document.getElementById("line_angle");
+                if (!snap.modifiers.includes(mod)){
+                    let line_input = document.createElement("input");
+                    snap.modifiers.push(line_input);
+                    line_input.type = "text";
+                    line_input.className = "line_button"
+                    line_input.id = "line_angle";
+                    line_input.style.top = String(mouse.y) + "px";
+                    line_input.style.left = String(mouse.x) + "px";
+                    let board = document.getElementById("board");
+                    board.insertBefore(line_input,canvas);
+                    line_input.addEventListener("keyup", function(){
+                        snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
+                    });
+                }
+                else{
+                    snap.modifiers.splice(snap.modifiers.indexOf(mod),1);
+                    mod.remove();
+                }
             }
+            snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
         }
     }
 }
@@ -141,7 +152,7 @@ function loop() {
         draw_highlight(ctx,select.selected,"orchid");
     }
     else{
-        draw_snap(ctx,snap.coords);
+        draw_snap(ctx,snap);
     }
     ctx.stroke();
 

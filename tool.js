@@ -2,6 +2,7 @@ import {add as lines_add
        ,select as lines_select
        ,remove as lines_remove} from "./lines.js";
 import {nearest_on_line} from "./nearest_on_line.js";
+import { intersect } from "./intersect.js";
 
 export function change(event,tool,using){
     if (!using){
@@ -58,28 +59,62 @@ export function select(lines,mouse,tool,using){
     }
     return proposed;
 }
-export function snap(hover,mouse,using,lines,snap_radius){
-    let snap = null;
-    let outside_start;
-    if (hover){
+export function snap(hover,mouse,using,lines,snap_radius,_snap){
+    let coords = null;
+    let mods = _snap.modifiers;
+    let hide = true;
+    if (mods.length > 0){
+        let drawing = lines[lines.length-1];
+        mods.forEach(mod =>{
+            if (mod.id == "line_angle"){
+                //project endpoint onto angle
+                let ang = -parseFloat(mod.value)*(Math.PI/180);
+                let a = {x: mouse.x - drawing.a.x,y: mouse.y - drawing.a.y};
+                let b = {x: Math.cos(ang),y: Math.sin(ang)};
+                let length = a.x * b.x + a.y * b.y;
+                coords = {x: drawing.a.x + length * b.x
+                         ,y: drawing.a.y + length * b.y};
+                for (const line of lines){
+                    if (line != drawing){
+                        let intersection = intersect(drawing.a.x,drawing.a.y
+                                                    ,coords.x,coords.y
+                                                    ,line.a.x,line.a.y
+                                                    ,line.b.x,line.b.y);
+                        if (intersection){
+                            if (
+                            Math.hypot(intersection.x - coords.x
+                                    ,intersection.y - coords.y)
+                            <= snap_radius){
+                                coords = intersection;
+                                hide = false;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    else if (hover){
         let nearest_point = nearest_on_line({x:mouse.x, y:mouse.y}
-                                           ,{x:hover.a.x, y:hover.a.y}
-                                           ,{x:hover.b.x, y:hover.b.y});
+                                        ,{x:hover.a.x, y:hover.a.y}
+                                        ,{x:hover.b.x, y:hover.b.y});
         //let disto_nearest = Math.hypot(mouse.x-nearest_point.x, mouse.y-nearest_point.y);
         let disto_a = Math.hypot(mouse.x-hover.a.x, mouse.y-hover.a.y);
         let disto_b = Math.hypot(mouse.x-hover.b.x, mouse.y-hover.b.y);
         let nearest_end = disto_a <= disto_b ? hover.a : hover.b;
         let disto_end = nearest_end == hover.a ? disto_a : disto_b;
         let point = disto_end <= snap_radius ? nearest_end : nearest_point;
-        snap = point;
+        coords = point;
+        hide = false;
         if (using){
             let last_line = lines[lines.length-1];
             let dis_from_start = Math.hypot(mouse.x-last_line.a.x
-                                           ,mouse.y-last_line.a.y);
+                                            ,mouse.y-last_line.a.y);
             if (dis_from_start <= snap_radius){
-                snap = null;
+                coords = null;
+                hide = true;
             }
         }
     }
-    return snap;
+    return {coords: coords,modifiers: mods,hide: hide};
 }
