@@ -5,8 +5,8 @@ export function add(_lines,mouse,using,snap){
     if (snap.modifiers.length > 0){
         snap.modifiers.forEach((mod,index) => {
             snap.modifiers[index].remove();
-            snap.modifiers.splice(index,1);
         });
+        snap.modifiers = [];
     }
     if (snap.coords){
         place = snap.coords;

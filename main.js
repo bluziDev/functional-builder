@@ -11,6 +11,9 @@ import {onclick_button as onclick_linebutton
 import {open as menu_open
        ,close as menu_close} from "./menu.js";
 import {change as selection_change} from "./selection.js";
+import {is_modkey as snap_is_modkey
+       ,get_modid as snap_get_modid
+       ,add_mod as snap_add_mod} from "./snap.js";
 
 //canvas
 const canvas = document.getElementById("canvas");
@@ -97,14 +100,15 @@ function onkey(event){
     if (mouse_focus.focus == canvas){
         let key = event.key;
         if (tool == "draw" && using){
-            if (key == "a"){
-                let mod = document.getElementById("line_angle");
+            if (snap_is_modkey(key)){
+                let id = snap_get_modid(key);
+                let mod = document.getElementById(id);
                 if (!snap.modifiers.includes(mod)){
                     let line_input = document.createElement("input");
-                    snap.modifiers.push(line_input);
+                    line_input.id = id;
+                    snap.modifiers = snap_add_mod(snap.modifiers,line_input);
                     line_input.type = "text";
                     line_input.className = "line_button"
-                    line_input.id = "line_angle";
                     line_input.style.top = String(mouse.y) + "px";
                     line_input.style.left = String(mouse.x) + "px";
                     let board = document.getElementById("board");

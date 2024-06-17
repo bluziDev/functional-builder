@@ -2,7 +2,8 @@ import {add as lines_add
        ,select as lines_select
        ,remove as lines_remove} from "./lines.js";
 import {nearest_on_line} from "./nearest_on_line.js";
-import { intersect } from "./intersect.js";
+import {modify_angle as snap_modify_angle
+       ,modify_length as snap_modify_length} from "./snap.js";
 
 export function change(event,tool,using){
     if (!using){
@@ -65,34 +66,17 @@ export function snap(hover,mouse,using,lines,snap_radius,_snap){
     let hide = true;
     if (mods.length > 0){
         let drawing = lines[lines.length-1];
+        let modification = {coords: {...mouse},hide: hide};
         mods.forEach(mod =>{
             if (mod.id == "line_angle"){
-                //project endpoint onto angle
-                let ang = -parseFloat(mod.value)*(Math.PI/180);
-                let a = {x: mouse.x - drawing.a.x,y: mouse.y - drawing.a.y};
-                let b = {x: Math.cos(ang),y: Math.sin(ang)};
-                let length = a.x * b.x + a.y * b.y;
-                coords = {x: drawing.a.x + length * b.x
-                         ,y: drawing.a.y + length * b.y};
-                for (const line of lines){
-                    if (line != drawing){
-                        let intersection = intersect(drawing.a.x,drawing.a.y
-                                                    ,coords.x,coords.y
-                                                    ,line.a.x,line.a.y
-                                                    ,line.b.x,line.b.y);
-                        if (intersection){
-                            if (
-                            Math.hypot(intersection.x - coords.x
-                                    ,intersection.y - coords.y)
-                            <= snap_radius){
-                                coords = intersection;
-                                hide = false;
-                            }
-                        }
-                    }
-                }
+                modification = snap_modify_angle(mod,mouse,drawing,lines,modification.coords,snap_radius,modification.hide);
+            }
+            if (mod.id == "line_length"){
+                modification = snap_modify_length(mod,mouse,drawing,lines,snap_radius,modification,mods);
             }
         });
+        coords = modification.coords;
+        hide = modification.hide;
     }
     else if (hover){
         let nearest_point = nearest_on_line({x:mouse.x, y:mouse.y}
