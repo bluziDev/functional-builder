@@ -1,0 +1,22 @@
+-autopopulate angle/length inputs with
+    the line's current angle/length
+-ignore text input if the key is used elsewhere
+-input fields for precise line drawing:
+    -accessed with shortcut that corresponds
+    to property (key "a" for precise angle,
+    "l" for precise length, etc)
+-make lines snap  to one another when they are moved
+-implement selection menu:
+    -move
+    -delete
+    -etc
+-relative property editing:
+    -buttons for changing angles between lines
+    -etc
+    -note: lines don't store relationships, so 
+    there is no option to "parent", but you can 
+    organize lines into groups, and choose to select
+    the group before editing a relative property,
+    in which case all the lines in the group will
+    use the origin of the property(intersection point
+    in the case of a relative angle change)
