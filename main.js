@@ -13,7 +13,8 @@ import {open as menu_open
 import {change as selection_change} from "./selection.js";
 import {is_modkey as snap_is_modkey
        ,get_modid as snap_get_modid
-       ,add_mod as snap_add_mod} from "./snap.js";
+       ,add_mod as snap_add_mod
+       ,populate_input as snap_populate_input} from "./snap.js";
 
 //canvas
 const canvas = document.getElementById("canvas");
@@ -113,8 +114,19 @@ function onkey(event){
                     line_input.style.left = String(mouse.x) + "px";
                     let board = document.getElementById("board");
                     board.insertBefore(line_input,canvas);
+                    line_input.value = snap_populate_input(id,lines,mouse,snap);
                     line_input.addEventListener("keyup", function(){
                         snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
+                    });
+                    line_input.addEventListener("input", function(event){
+                        console.log("input was detected");
+                        let rgx = /^[0-9]*\.?[0-9]*$/;
+                        let target = event.target;
+                        let val = target.value;
+                        let match = val.match(rgx);
+                        if (!match){
+                            target.value = val.substring(0,val.length - 1);
+                        }
                     });
                 }
                 else{

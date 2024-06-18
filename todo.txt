@@ -1,6 +1,7 @@
--autopopulate angle/length inputs with
-    the line's current angle/length
--ignore text input if the key is used elsewhere
+-put line input boxes in a div with each other
+-figure out what happens when you start drawing a 
+    line, press "a" but leave the field empty,
+    then finish the line
 -input fields for precise line drawing:
     -accessed with shortcut that corresponds
     to property (key "a" for precise angle,

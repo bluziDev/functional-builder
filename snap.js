@@ -96,3 +96,22 @@ export function modify_length(input,mouse,drawing,lines,snap_radius,modification
     }
     return {coords: coords,hide: hide};
 }
+export function populate_input(id,lines,mouse,snap){
+    let value = "";
+    let start = lines[lines.length - 1].a;
+    let end = (snap.coords) ? snap.coords : mouse;
+    switch (id){
+        case "line_angle":
+            value = String((Math.atan((end.y - start.y)
+                                   / (end.x - start.x))
+                          * -(180/Math.PI)
+                          + 360)
+                          % 360);
+            break;
+        case "line_length":
+            value = String(Math.hypot(end.x - start.x
+                                     ,end.y - start.y));
+            break;
+    }
+    return value;
+}
