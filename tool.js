@@ -6,12 +6,14 @@ import {modify_angle as snap_modify_angle
        ,modify_length as snap_modify_length} from "./snap.js";
 
 export function change(event,tool,using){
-    if (!using){
-        return event.target.id;
+    let new_tool = tool;
+    if (!using && event.target.tagName == "BUTTON"){
+        new_tool = event.target.id;
+        document.getElementById(tool).className = "tool";
+        document.getElementById(new_tool).className = "tool_pressed";
+        //console.log(tool);
     }
-    else{
-        return tool;
-    }
+    return new_tool;
 }
 export function lines(event,tool,using,_lines,selected,snap){
     let mouse = {x: event.offsetX, y: event.offsetY};

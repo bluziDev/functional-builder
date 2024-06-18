@@ -1,6 +1,7 @@
 import {lines as draw_lines
        ,highlight as draw_highlight
-       ,snap as draw_snap} from "./draw.js";
+       ,snap as draw_snap
+       ,canvas as draw_canvas} from "./draw.js";
 import { nearest_on_line } from "./nearest_on_line.js";
 import {change as tool_change
        ,lines as tool_lines
@@ -14,7 +15,8 @@ import {change as selection_change} from "./selection.js";
 import {is_modkey as snap_is_modkey
        ,get_modid as snap_get_modid
        ,add_mod as snap_add_mod
-       ,populate_input as snap_populate_input} from "./snap.js";
+       ,populate_input as snap_populate_input
+       ,mod_toggle as snap_mod_toggle} from "./snap.js";
 
 //canvas
 const canvas = document.getElementById("canvas");
@@ -23,16 +25,14 @@ canvas.setAttribute("width", canvas.parentNode.offsetWidth);
 canvas.setAttribute("height", canvas.parentNode.offsetHeight);
 
 //lines
-var mouse = {x:0, y:0};
+var mouse = {x: 0,y: 0,focus: null};
 var mouse_prev = {...mouse};
-var mouse_focus = {focus: null};
 var lines = [];
 var select = {hovering: null, selected: null};
 var line_menu;
 var line_effect = {effect: ""};
-var snap = {coords: null,modifiers: [],hide: false};
+var snap = {coords: null,modifiers: [],hide: false,radius: 10};
 var snap_radius = 10;
-var line_input = null;
 function onclick_canvas(event){
     mouse = {x: event.offsetX, y: event.offsetY};
     //change selection
@@ -58,7 +58,7 @@ function onclick_canvas(event){
                     if (click_effect.close){
                         menu_close(line_menu);
                     }
-                    mouse_focus.focus = event.target;
+                    mouse.focus = event.target;
                 });
             }
         }
@@ -84,13 +84,13 @@ function onmousemove_canvas(event){
     }
     else{
         if (line_effect.effect == "move"){
-            if (mouse_focus.focus == event.target){
+            if (mouse.focus == event.target){
                 line_move(select.selected,{x: mouse.x-mouse_prev.x
                                         ,y: mouse.y-mouse_prev.y});
             }
         }
     }
-    mouse_focus.focus = event.target;
+    mouse.focus = event.target;
     mouse_prev = {...mouse};
 }
 function onmouseleave_canvas(event){
@@ -98,43 +98,19 @@ function onmouseleave_canvas(event){
     //snap.coords = null;
 }
 function onkey(event){
-    if (mouse_focus.focus == canvas){
-        let key = event.key;
+    let key = event.key;
+    if (snap_is_modkey(key)){
         if (tool == "draw" && using){
-            if (snap_is_modkey(key)){
-                let id = snap_get_modid(key);
-                let mod = document.getElementById(id);
-                if (!snap.modifiers.includes(mod)){
-                    let line_input = document.createElement("input");
-                    line_input.id = id;
-                    snap.modifiers = snap_add_mod(snap.modifiers,line_input);
-                    line_input.type = "text";
-                    line_input.className = "line_button"
-                    line_input.style.top = String(mouse.y) + "px";
-                    line_input.style.left = String(mouse.x) + "px";
-                    let board = document.getElementById("board");
-                    board.insertBefore(line_input,canvas);
-                    line_input.value = snap_populate_input(id,lines,mouse,snap);
-                    line_input.addEventListener("keyup", function(){
-                        snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
-                    });
-                    line_input.addEventListener("input", function(event){
-                        console.log("input was detected");
-                        let rgx = /^[0-9]*\.?[0-9]*$/;
-                        let target = event.target;
-                        let val = target.value;
-                        let match = val.match(rgx);
-                        if (!match){
-                            target.value = val.substring(0,val.length - 1);
-                        }
-                    });
-                }
-                else{
-                    snap.modifiers.splice(snap.modifiers.indexOf(mod),1);
-                    mod.remove();
-                }
-            }
+            snap.modifiers = snap_mod_toggle(canvas,key,snap,mouse,lines);
             snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
+            snap.modifiers.forEach(mod => {
+                if (mod.getAttribute("listener") !== "true"){
+                    mod.addEventListener("keyup", function(){
+                        snap = tool_snap(select.hovering,mouse,using,lines,snap.radius,snap);
+                    });
+                    mod.setAttribute("listener", "true");
+                }
+            });
         }
     }
 }
@@ -146,32 +122,14 @@ window.addEventListener("keydown",onkey);
 //toolbar
 const toolbar = document.getElementById("toolbar");
 var tool = "draw";
-var tool_sub = "";
 var using = false;
 function onclick_tool(event){
-    if (event.target.tagName == "BUTTON"){
-        document.getElementById(tool).className = "tool";
-        tool = tool_change(event,tool,using);
-        document.getElementById(tool).className = "tool_pressed";
-        //console.log(tool);
-    }
+    tool = tool_change(event,tool,using);
 }
 toolbar.addEventListener("click",onclick_tool);
 
 function loop() {
-    //draw
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.beginPath();
-    draw_lines(ctx,lines,(tool == "draw" && using) ? mouse : null,snap);
-    if (tool != "draw"){
-        draw_highlight(ctx,select.hovering,"black")
-        draw_highlight(ctx,select.selected,"orchid");
-    }
-    else{
-        draw_snap(ctx,snap);
-    }
-    ctx.stroke();
-
+    draw_canvas(canvas,lines,tool,using,mouse,snap,select);
     window.requestAnimationFrame(loop);
 }
 window.requestAnimationFrame(loop);

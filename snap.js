@@ -10,14 +10,33 @@ export function get_modid(key){
     if (key == "a") return "line_angle";
     if (key == "l") return "line_length";
 }
-export function add_mod(_mods,element){
+export function add_mod(_mods,id,lines,mouse,snap){
     let mods = [..._mods];
-    switch (element.id){
+    let line_input = document.createElement("input");
+    line_input.id = id;
+    line_input.type = "text";
+    line_input.className = "line_button"
+    line_input.style.top = String(mouse.y) + "px";
+    line_input.style.left = String(mouse.x) + "px";
+    let board = document.getElementById("board");
+    board.insertBefore(line_input,canvas);
+    line_input.value = populate_input(id,lines,mouse,snap);
+    line_input.addEventListener("input", function(event){
+        console.log("input was detected");
+        let rgx = /^[0-9]*\.?[0-9]*$/;
+        let target = event.target;
+        let val = target.value;
+        let match = val.match(rgx);
+        if (!match){
+            target.value = val.substring(0,val.length - 1);
+        }
+    });
+    switch (id){
         case "line_angle":
-            mods.splice(0,0,element);
+            mods.splice(0,0,line_input);
             break
         case "line_length":
-            mods.push(element);
+            mods.push(line_input);
             break
     }
     return mods;
@@ -114,4 +133,19 @@ export function populate_input(id,lines,mouse,snap){
             break;
     }
     return value;
+}
+export function mod_toggle(canvas,key,snap,mouse,lines){
+    let mods = [...snap.modifiers];
+    if (mouse.focus == canvas){
+        let id = get_modid(key);
+        let mod = document.getElementById(id);
+        if (!mods.includes(mod)){
+            mods = add_mod(mods,id,lines,mouse,snap);
+        }
+        else{
+            mods.splice(mods.indexOf(mod),1);
+            mod.remove();
+        }
+    }
+    return mods;
 }

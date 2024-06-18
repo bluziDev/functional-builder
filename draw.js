@@ -52,3 +52,17 @@ export function snap(ctx,snap){
         ctx.beginPath();
     }
 }
+export function canvas(canvas,_lines,tool,using,mouse,_snap,select){
+    let ctx = canvas.getContext("2d");
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.beginPath();
+    lines(ctx,_lines,(tool == "draw" && using) ? mouse : null,_snap);
+    if (tool != "draw"){
+        highlight(ctx,select.hovering,"black")
+        highlight(ctx,select.selected,"orchid");
+    }
+    else{
+        snap(ctx,_snap);
+    }
+    ctx.stroke();
+}
