@@ -10,16 +10,18 @@ export function get_modid(key){
     if (key == "a") return "line_angle";
     if (key == "l") return "line_length";
 }
-export function add_mod(_mods,id,lines,mouse,snap){
+export function add_mod(_mods,id,lines,mouse,snap,snap_menu){
     let mods = [..._mods];
+    let label = document.createElement("label");
+    label.setAttribute("for",id);
+    label.id = "label"+id;
+    label.className = "snap_label";
     let line_input = document.createElement("input");
     line_input.id = id;
     line_input.type = "text";
-    line_input.className = "line_button"
-    line_input.style.top = String(mouse.y) + "px";
-    line_input.style.left = String(mouse.x) + "px";
-    let board = document.getElementById("board");
-    board.insertBefore(line_input,canvas);
+    line_input.className = "snap_button";
+    snap_menu.appendChild(line_input);
+    snap_menu.appendChild(label);
     line_input.value = populate_input(id,lines,mouse,snap);
     line_input.addEventListener("input", function(event){
         console.log("input was detected");
@@ -30,15 +32,28 @@ export function add_mod(_mods,id,lines,mouse,snap){
         if (!match){
             target.value = val.substring(0,val.length - 1);
         }
+        if (target.value == ""){
+            target.value = "0";
+        }
+        if (val.substring(0,1) == "0"
+         && val.substring(0,2) != "0."
+         && val != "0"){
+            target.value = val.substring(1);
+        }
     });
     switch (id){
         case "line_angle":
             mods.splice(0,0,line_input);
+            label.innerHTML = "Angle&nbsp";
             break
         case "line_length":
             mods.push(line_input);
+            label.innerHTML = "Length&nbsp";
             break
     }
+    let br = document.createElement("br");
+    br.id = "br"+id;
+    snap_menu.appendChild(br);
     return mods;
 }
 export function modify_angle(mod,mouse,drawing,lines,_coords,snap_radius,_hide){
@@ -134,17 +149,21 @@ export function populate_input(id,lines,mouse,snap){
     }
     return value;
 }
-export function mod_toggle(canvas,key,snap,mouse,lines){
+export function mod_toggle(canvas,key,snap,mouse,lines,snap_menu){
     let mods = [...snap.modifiers];
     if (mouse.focus == canvas){
         let id = get_modid(key);
         let mod = document.getElementById(id);
         if (!mods.includes(mod)){
-            mods = add_mod(mods,id,lines,mouse,snap);
+            mods = add_mod(mods,id,lines,mouse,snap,snap_menu);
         }
         else{
             mods.splice(mods.indexOf(mod),1);
             mod.remove();
+            let label = document.getElementById("label"+id);
+            label.remove();
+            let br = document.getElementById("br"+id);
+            br.remove();
         }
     }
     return mods;

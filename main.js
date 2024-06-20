@@ -30,6 +30,7 @@ var mouse_prev = {...mouse};
 var lines = [];
 var select = {hovering: null, selected: null};
 var line_menu;
+var snap_menu = null;
 var line_effect = {effect: ""};
 var snap = {coords: null,modifiers: [],hide: false,radius: 10};
 var snap_radius = 10;
@@ -70,14 +71,16 @@ function onclick_canvas(event){
         lines = effect.lines;
         using = effect.using;
         select.hovering = tool_select(lines,mouse);
+        if (snap_menu && snap.modifiers.length == 0){
+            snap_menu.remove();
+            snap_menu = null;
+        }
+        console.log(lines);
     }
     snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
-    //using = !using;
-    //console.log(lines);
-    //console.log("select: " + toString(select));
 }
 function onmousemove_canvas(event){
-    mouse = {x: event.offsetX, y: event.offsetY};
+    mouse = {x: event.offsetX,y: event.offsetY,focus: event.target};
     if (!line_effect.effect){
         select.hovering = tool_select(lines,mouse);
         snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
@@ -87,10 +90,10 @@ function onmousemove_canvas(event){
             if (mouse.focus == event.target){
                 line_move(select.selected,{x: mouse.x-mouse_prev.x
                                         ,y: mouse.y-mouse_prev.y});
+                console.log("effect applied");
             }
         }
     }
-    mouse.focus = event.target;
     mouse_prev = {...mouse};
 }
 function onmouseleave_canvas(event){
@@ -101,7 +104,15 @@ function onkey(event){
     let key = event.key;
     if (snap_is_modkey(key)){
         if (tool == "draw" && using){
-            snap.modifiers = snap_mod_toggle(canvas,key,snap,mouse,lines);
+            if (!snap_menu){
+                snap_menu = document.createElement("div");
+                snap_menu.className = "snap_menu";
+                let board = document.getElementById("board");
+                board.insertBefore(snap_menu,canvas);
+                snap_menu.style.top = String(mouse.y) + "px";
+                snap_menu.style.left = String(mouse.x) + "px";
+            }
+            snap.modifiers = snap_mod_toggle(canvas,key,snap,mouse,lines,snap_menu);
             snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
             snap.modifiers.forEach(mod => {
                 if (mod.getAttribute("listener") !== "true"){
@@ -111,6 +122,10 @@ function onkey(event){
                     mod.setAttribute("listener", "true");
                 }
             });
+            if (snap.modifiers.length == 0){
+                snap_menu.remove();
+                snap_menu = null;
+            }
         }
     }
 }

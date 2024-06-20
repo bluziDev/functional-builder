@@ -13,6 +13,20 @@
     position:absolute;
     background-color: rgba(255, 255, 255, 0.5);
 }
+.snap_menu{
+    border-radius: 15px;
+    padding: 10px;
+    position:absolute;
+    /*display: grid;*/
+    background-color: rgba(128, 128, 128, 0.5);
+}
+.snap_button{
+    background-color: rgba(255, 255, 255, 0.0);
+    float: right;
+}
+.snap_label{
+    float: right;
+}
 body{
     background-color: slategrey;
     margin: 0;
