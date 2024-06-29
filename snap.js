@@ -1,6 +1,8 @@
 
 import { intersect } from "./intersect.js";
 import { line_circle_intersections } from "./line_circle_intersections.js";
+import { px_to_unit
+        ,unit_to_px} from "./scaling.js";
 
 export function is_modkey(key){
     return (key == "a"
@@ -10,12 +12,13 @@ export function get_modid(key){
     if (key == "a") return "line_angle";
     if (key == "l") return "line_length";
 }
-export function add_mod(_mods,id,lines,mouse,snap,snap_menu){
+export function add_mod(_mods,id,lines,mouse,snap,snap_menu,unit){
     let mods = [..._mods];
     let label = document.createElement("label");
     label.setAttribute("for",id);
     label.id = "label"+id;
     label.className = "snap_label";
+    label.setAttribute("data-unit",unit);
     let line_input = document.createElement("input");
     line_input.id = id;
     line_input.type = "text";
@@ -48,7 +51,7 @@ export function add_mod(_mods,id,lines,mouse,snap,snap_menu){
             break
         case "line_length":
             mods.push(line_input);
-            label.innerHTML = "Length&nbsp";
+            label.innerHTML = "Length&nbspin&nbsp"+unit+"&nbsp";
             break
     }
     let br = document.createElement("br");
@@ -95,7 +98,7 @@ export function modify_length(input,mouse,drawing,lines,snap_radius,modification
                                   , drawing_from_start.y);
     let normalized = {x: drawing_from_start.x / length_drawing
                      ,y: drawing_from_start.y / length_drawing};
-    let length_new = parseFloat(input.value);
+    let length_new = unit_to_px(parseFloat(input.value));
     let coords = {x: drawing.a.x + normalized.x * length_new
                  ,y: drawing.a.y + normalized.y * length_new};
     //only try to snap by angle if there is not also an angle modifier
@@ -145,17 +148,18 @@ export function populate_input(id,lines,mouse,snap){
         case "line_length":
             value = String(Math.hypot(end.x - start.x
                                      ,end.y - start.y));
+            value = px_to_unit(value);
             break;
     }
     return value;
 }
-export function mod_toggle(canvas,key,snap,mouse,lines,snap_menu){
+export function mod_toggle(canvas,key,snap,mouse,lines,snap_menu,unit){
     let mods = [...snap.modifiers];
     if (mouse.focus == canvas){
         let id = get_modid(key);
         let mod = document.getElementById(id);
         if (!mods.includes(mod)){
-            mods = add_mod(mods,id,lines,mouse,snap,snap_menu);
+            mods = add_mod(mods,id,lines,mouse,snap,snap_menu,unit);
         }
         else{
             mods.splice(mods.indexOf(mod),1);

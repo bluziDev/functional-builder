@@ -1,8 +1,4 @@
-
--input fields for precise line drawing:
-    -accessed with shortcut that corresponds
-    to property (key "a" for precise angle,
-    "l" for precise length, etc)
+-add unit button and change length input to unit
 -make lines snap  to one another when they are moved
 -implement selection menu:
     -move
@@ -11,8 +7,7 @@
 -relative property editing:
     -buttons for changing angles between lines
     -etc
-    -note: lines don't store relationships, so 
-    there is no option to "parent", but you can 
+    -note: you can 
     organize lines into groups, and choose to select
     the group before editing a relative property,
     in which case all the lines in the group will

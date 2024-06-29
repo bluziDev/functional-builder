@@ -23,6 +23,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.setAttribute("width", canvas.parentNode.offsetWidth);
 canvas.setAttribute("height", canvas.parentNode.offsetHeight);
+let cam = {x: 0,y: 0,zoom: document.getElementById("zoom").value};
 
 //lines
 var mouse = {x: 0,y: 0,focus: null};
@@ -35,7 +36,10 @@ var line_effect = {effect: ""};
 var snap = {coords: null,modifiers: [],hide: false,radius: 10};
 var snap_radius = 10;
 function onclick_canvas(event){
-    mouse = {x: event.offsetX, y: event.offsetY};
+    mouse = {x: event.offsetX,y: event.offsetY,focus: event.target};
+    let mouse_zoomed = coords_zoomed(mouse,cam);
+    mouse.x = mouse_zoomed.x;
+    mouse.y = mouse_zoomed.y;
     //change selection
     if (tool == "select"){
         //selection_change();
@@ -75,12 +79,15 @@ function onclick_canvas(event){
             snap_menu.remove();
             snap_menu = null;
         }
-        console.log(lines);
+        //console.log(lines);
     }
     snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
 }
 function onmousemove_canvas(event){
     mouse = {x: event.offsetX,y: event.offsetY,focus: event.target};
+    let mouse_zoomed = coords_zoomed(mouse,cam);
+    mouse.x = mouse_zoomed.x;
+    mouse.y = mouse_zoomed.y;
     if (!line_effect.effect){
         select.hovering = tool_select(lines,mouse);
         snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
@@ -95,6 +102,14 @@ function onmousemove_canvas(event){
         }
     }
     mouse_prev = {...mouse};
+}
+function coords_zoomed(raw,cam){
+    let x = raw.x;
+    let y = raw.y;
+    x = x / cam.zoom + cam.x;
+    y = y / cam.zoom + cam.y;
+    let zoomed = {x,y};
+    return zoomed;
 }
 function onmouseleave_canvas(event){
     select.hovering = null;
@@ -112,7 +127,7 @@ function onkey(event){
                 snap_menu.style.top = String(mouse.y) + "px";
                 snap_menu.style.left = String(mouse.x) + "px";
             }
-            snap.modifiers = snap_mod_toggle(canvas,key,snap,mouse,lines,snap_menu);
+            snap.modifiers = snap_mod_toggle(canvas,key,snap,mouse,lines,snap_menu,unit);
             snap = tool_snap(select.hovering,mouse,using,lines,snap_radius,snap);
             snap.modifiers.forEach(mod => {
                 if (mod.getAttribute("listener") !== "true"){
@@ -135,6 +150,12 @@ canvas.addEventListener("mouseenter",onmousemove_canvas);
 canvas.addEventListener("mouseleave",onmouseleave_canvas);
 window.addEventListener("keydown",onkey);
 //toolbar
+let unit_label = document.getElementById("ppi_label");
+let slider = document.getElementById("ppi");
+unit_label.innerHTML = "Pixels per Inch: " + slider.value;
+const unit_button = document.getElementById("unit");
+let unit = "inches";
+unit_button.innerHTML = "Unit: " + unit;
 const toolbar = document.getElementById("toolbar");
 var tool = "draw";
 var using = false;
@@ -142,9 +163,13 @@ function onclick_tool(event){
     tool = tool_change(event,tool,using);
 }
 toolbar.addEventListener("click",onclick_tool);
+slider.addEventListener("input", function(){
+    unit_label.innerHTML = "Pixels per Inch: " + slider.value;
+});
 
 function loop() {
-    draw_canvas(canvas,lines,tool,using,mouse,snap,select);
+    cam = {x: 0,y: 0,zoom: document.getElementById("zoom").value};
+    draw_canvas(canvas,lines,tool,using,mouse,snap,select,cam);
     window.requestAnimationFrame(loop);
 }
 window.requestAnimationFrame(loop);
