@@ -34,8 +34,7 @@ export function lines(event,tool,using,_lines,selected,snap){
     }
     return effect;
 }
-export function select(lines,mouse,tool,using){
-    let select_radius = 10;
+export function select(lines,mouse,tool,using,select_radius){
     let proposed = null;
     for (const line of lines){
         let on_last = lines.indexOf(line) == lines.length-1;
@@ -63,7 +62,7 @@ export function select(lines,mouse,tool,using){
     return proposed;
 }
 export function snap(hover,mouse,using,lines,snap_radius,_snap){
-    let coords = null;
+    let coords = {...mouse};
     let mods = _snap.modifiers;
     let hide = true;
     if (mods.length > 0){
@@ -97,10 +96,10 @@ export function snap(hover,mouse,using,lines,snap_radius,_snap){
             let dis_from_start = Math.hypot(mouse.x-last_line.a.x
                                             ,mouse.y-last_line.a.y);
             if (dis_from_start <= snap_radius){
-                coords = null;
+                coords = {...mouse};
                 hide = true;
             }
         }
     }
-    return {coords: coords,modifiers: mods,hide: hide};
+    return {coords: coords,modifiers: mods,hide: hide,radius: _snap.radius};
 }

@@ -1,4 +1,4 @@
--add unit button and change length input to unit
+-fix snapping and move button problems caused by zoom
 -make lines snap  to one another when they are moved
 -implement selection menu:
     -move
