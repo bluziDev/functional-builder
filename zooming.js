@@ -15,3 +15,13 @@ export function coords_unzoomed(zoomed,cam){
     let raw = {x: x,y: y};
     return raw;
 }
+export function pan(cam,prev,curr){
+    let new_cam = {...cam};
+    let new_curr = {...curr};
+    if (cam.panning){
+        new_cam.x += (prev.x - curr.x);
+        new_cam.y += (prev.y - curr.y);
+        new_curr = {...prev};
+    }
+    return {cam: new_cam,mouse: new_curr};
+}

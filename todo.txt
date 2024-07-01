@@ -1,4 +1,5 @@
--fix snapping and move button problems caused by zoom
+-fix: zoom reverses below 0.368 input
+-fix: canvas is moved by the toolbar
 -make lines snap  to one another when they are moved
 -implement selection menu:
     -move

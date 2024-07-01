@@ -17,14 +17,14 @@ import {is_modkey as snap_is_modkey
        ,add_mod as snap_add_mod
        ,populate_input as snap_populate_input
        ,mod_toggle as snap_mod_toggle} from "./snap.js";
-import {coords_zoomed,coords_unzoomed} from "./zooming.js";
+import {coords_zoomed,coords_unzoomed,pan} from "./zooming.js";
 
 //canvas
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.setAttribute("width", canvas.parentNode.offsetWidth);
 canvas.setAttribute("height", canvas.parentNode.offsetHeight);
-let cam = {x: 0,y: 0,zoom: document.getElementById("zoom").value};
+let cam = {x: 0,y: 0,zoom: document.getElementById("zoom").value,panning: false};
 
 //lines
 var mouse = {x: 0,y: 0,focus: null};
@@ -64,7 +64,10 @@ function onclick_canvas(event){
                     if (click_effect.close){
                         menu_close(line_menu);
                     }
+                });
+                line_menu.addEventListener("mouseenter",function(event){
                     mouse.focus = event.target;
+                    mouse_prev.focus = event.target;
                 });
             }
         }
@@ -83,7 +86,7 @@ function onclick_canvas(event){
         //console.log(lines);
     }
     snap = tool_snap(select.hovering,mouse,using,lines,snap.radius,snap);
-    console.log(snap.radius);
+    //console.log(snap.radius);
 }
 function onmousemove_canvas(event){
     mouse = {x: event.offsetX,y: event.offsetY,focus: event.target};
@@ -95,14 +98,17 @@ function onmousemove_canvas(event){
         snap = tool_snap(select.hovering,mouse,using,lines,snap.radius,snap);
     }
     else{
-        if (line_effect.effect == "move"){
-            if (mouse.focus == event.target){
+        if (line_effect.effect == "move" && !cam.panning){
+            if (mouse_prev.focus == event.target){
                 line_move(select.selected,{x: mouse.x-mouse_prev.x
                                         ,y: mouse.y-mouse_prev.y});
                 //console.log("effect applied");
             }
         }
     }
+    let pan_result = pan(cam,mouse_prev,mouse);
+    cam = pan_result.cam;
+    mouse = pan_result.mouse;
     mouse_prev = {...mouse};
 }
 function onmouseleave_canvas(event){
@@ -111,7 +117,17 @@ function onmouseleave_canvas(event){
 }
 function onkey(event){
     let key = event.key;
-    if (snap_is_modkey(key)){
+    if (event.code == "Space"){
+        event.preventDefault();
+        cam.panning = !cam.panning;
+        if (cam.panning){
+            document.body.style.cursor = "grabbing";
+        }
+        else {
+            document.body.style.cursor = "auto";
+        }
+    }
+    else if (snap_is_modkey(key)){
         if (tool == "draw" && using){
             if (!snap_menu){
                 snap_menu = document.createElement("div");
@@ -139,11 +155,17 @@ function onkey(event){
         }
     }
 }
+/*function keyup(event){
+    if (event.code == "Space"){
+        panning = false;
+    }
+}*/
 canvas.addEventListener("click",onclick_canvas);
 canvas.addEventListener("mousemove",onmousemove_canvas);
 canvas.addEventListener("mouseenter",onmousemove_canvas);
 canvas.addEventListener("mouseleave",onmouseleave_canvas);
 window.addEventListener("keydown",onkey);
+//window.addEventListener("keyup",keyup);
 //toolbar
 let unit_label = document.getElementById("ppi_label");
 let slider = document.getElementById("ppi");
@@ -163,7 +185,15 @@ slider.addEventListener("input", function(){
     unit_label.innerHTML = "Pixels per Inch: " + slider.value;
 });
 document.getElementById("zoom").addEventListener("input",function(event){
-    cam.zoom = event.target.value;
+    let cam_prev = {...cam};
+    cam.zoom = event.target.value;// + 0.368;
+    cam.zoom = Math.pow(cam.zoom,cam.zoom);// - 0.692;
+    //shift camera based on zoom origin
+    let z_origin_uz = {x: -canvas.scrollWidth / 2,y: -canvas.scrollHeight / 2};
+    let z_origin_z = coords_zoomed(z_origin_uz,cam);
+    let z_origin_prev_z = coords_zoomed(z_origin_uz,cam_prev);
+    cam.x += z_origin_z.x - z_origin_prev_z.x;
+    cam.y += z_origin_z.y - z_origin_prev_z.y;
     snap.radius = snap_radius / cam.zoom;
     //console.log(snap.radius);
     //console.log(cam.zoom);
