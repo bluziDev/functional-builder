@@ -17,14 +17,14 @@ import {is_modkey as snap_is_modkey
        ,add_mod as snap_add_mod
        ,populate_input as snap_populate_input
        ,mod_toggle as snap_mod_toggle} from "./snap.js";
-import {coords_zoomed,coords_unzoomed,pan} from "./zooming.js";
+import {coords_zoomed,coords_unzoomed,pan,slider_to_zoom} from "./zooming.js";
 
 //canvas
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 canvas.setAttribute("width", canvas.parentNode.offsetWidth);
 canvas.setAttribute("height", canvas.parentNode.offsetHeight);
-let cam = {x: 0,y: 0,zoom: document.getElementById("zoom").value,panning: false};
+let cam = {x: 0,y: 0,zoom: slider_to_zoom(document.getElementById("zoom").value),panning: false};
 
 //lines
 var mouse = {x: 0,y: 0,focus: null};
@@ -186,8 +186,7 @@ slider.addEventListener("input", function(){
 });
 document.getElementById("zoom").addEventListener("input",function(event){
     let cam_prev = {...cam};
-    cam.zoom = event.target.value;// + 0.368;
-    cam.zoom = Math.pow(cam.zoom,cam.zoom);// - 0.692;
+    cam.zoom = slider_to_zoom(event.target.value);
     //shift camera based on zoom origin
     let z_origin_uz = {x: -canvas.scrollWidth / 2,y: -canvas.scrollHeight / 2};
     let z_origin_z = coords_zoomed(z_origin_uz,cam);

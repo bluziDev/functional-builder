@@ -25,3 +25,8 @@ export function pan(cam,prev,curr){
     }
     return {cam: new_cam,mouse: new_curr};
 }
+export function slider_to_zoom(input){
+    let real_zoom = parseFloat(input) + 0.368;
+    real_zoom = Math.pow(real_zoom,real_zoom) - 0.692;
+    return real_zoom;
+}
