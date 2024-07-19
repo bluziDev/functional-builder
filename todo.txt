@@ -1,4 +1,3 @@
--fix: canvas is moved by the toolbar
 -make lines snap  to one another when they are moved
 -implement selection menu:
     -move

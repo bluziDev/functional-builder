@@ -4,7 +4,10 @@
     height: 100%;
 }
 #toolbar{
-    /*position:absolute;*/
+    position:absolute;
+}
+#canvas{
+    position: absolute;
 }
 .line_menu{
     position:absolute;
@@ -38,11 +41,9 @@ body{
     box-sizing: border-box;  
 }
 .tool{
-    position:relative;
-    float:inline-start;
+    float: inline-start;
 }
 .tool_pressed{
-    position:relative;
-    float:inline-start;
+    float: inline-start;
     background-color:rgb(124, 124, 124);
 }
