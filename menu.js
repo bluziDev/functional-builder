@@ -9,7 +9,8 @@ export function open(line,cam){
     move.innerHTML = "Move";
     menu.appendChild(move);
     let board = document.getElementById("board");
-    board.insertBefore(menu,document.getElementById("canvas"));
+    //board.insertBefore(menu,document.getElementById("canvas"));
+    board.appendChild(menu);
     let center_unzoomed = coords_unzoomed({x: (line.a.x+line.b.x)/2,y: (line.a.y+line.b.y)/2},cam);
     menu.style.left=String(center_unzoomed.x) + "px";
     menu.style.top=String(center_unzoomed.y) + "px";

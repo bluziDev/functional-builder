@@ -1,3 +1,13 @@
+-quality of life:
+    -relative angled line creation
+    -right angled line pair creation
+    -multi selection
+    -snap when moving
+    -duplicate
+    
+
+-multi selection
+-line duplication
 -make lines snap  to one another when they are moved
 -implement selection menu:
     -move

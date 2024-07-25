@@ -35,7 +35,7 @@ var line_menu;
 var snap_menu = null;
 var line_effect = {effect: ""};
 var snap_radius = 10;
-var snap = {coords: null,modifiers: [],hide: false,radius: snap_radius};
+var snap = {coords: null,modifiers: [],hide: false,radius: snap_radius / cam.zoom};
 function onclick_canvas(event){
     mouse = {x: event.offsetX,y: event.offsetY,focus: event.target};
     let mouse_zoomed = coords_zoomed(mouse,cam);
@@ -133,7 +133,8 @@ function onkey(event){
                 snap_menu = document.createElement("div");
                 snap_menu.className = "snap_menu";
                 let board = document.getElementById("board");
-                board.insertBefore(snap_menu,canvas);
+                //board.insertBefore(snap_menu,canvas);
+                board.appendChild(snap_menu);
                 let mouse_unzoomed = coords_unzoomed(mouse,cam);
                 snap_menu.style.top = String(mouse_unzoomed.y) + "px";
                 snap_menu.style.left = String(mouse_unzoomed.x) + "px";
