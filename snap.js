@@ -26,8 +26,9 @@ export function add_mod(_mods,id,lines,mouse,snap,snap_menu,unit){
     snap_menu.appendChild(line_input);
     snap_menu.appendChild(label);
     line_input.value = populate_input(id,lines,mouse,snap);
+    line_input.readOnly = true;
     line_input.addEventListener("input", function(event){
-        console.log("input was detected");
+        //console.log("input was detected");
         let rgx = /^[0-9]*\.?[0-9]*$/;
         let target = event.target;
         let val = target.value;

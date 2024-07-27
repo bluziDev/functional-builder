@@ -139,7 +139,17 @@ function onkey(event){
                 snap_menu.style.top = String(mouse_unzoomed.y) + "px";
                 snap_menu.style.left = String(mouse_unzoomed.x) + "px";
             }
-            snap.modifiers = snap_mod_toggle(canvas,key,snap,mouse,lines,snap_menu,unit);
+            let new_mods = snap_mod_toggle(canvas,key,snap,mouse,lines,snap_menu,unit);
+            if (new_mods.length > snap.modifiers.length){
+                for(let mod of new_mods){
+                    if (!snap.modifiers.includes(mod)){
+                        mod.focus();
+                        mod.setSelectionRange(0,mod.value.length);
+                        mod.readOnly = false;
+                    }
+                }
+            }
+            snap.modifiers = new_mods;
             snap = tool_snap(select.hovering,mouse,using,lines,snap.radius,snap);
             snap.modifiers.forEach(mod => {
                 if (mod.getAttribute("listener") !== "true"){
@@ -165,7 +175,7 @@ canvas.addEventListener("click",onclick_canvas);
 canvas.addEventListener("mousemove",onmousemove_canvas);
 canvas.addEventListener("mouseenter",onmousemove_canvas);
 canvas.addEventListener("mouseleave",onmouseleave_canvas);
-window.addEventListener("keydown",onkey);
+window.addEventListener("keyup",onkey);
 //window.addEventListener("keyup",keyup);
 //toolbar
 let unit_label = document.getElementById("ppi_label");
