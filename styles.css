@@ -20,6 +20,8 @@
     border-radius: 15px;
     padding: 10px;
     position:absolute;
+    bottom: 0;
+    margin: 25px;
     /*display: grid;*/
     background-color: rgba(128, 128, 128, 0.5);
 }

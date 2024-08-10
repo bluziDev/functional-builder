@@ -127,6 +127,12 @@ function onkey(event){
             document.body.style.cursor = "auto";
         }
     }
+    else if (event.code == "Enter"){
+        if (using && tool == "draw"){
+            //enter completes line
+            $("canvas").trigger("click");
+        } 
+    }
     else if (snap_is_modkey(key)){
         if (tool == "draw" && using){
             if (!snap_menu){
@@ -135,9 +141,9 @@ function onkey(event){
                 let board = document.getElementById("board");
                 //board.insertBefore(snap_menu,canvas);
                 board.appendChild(snap_menu);
-                let mouse_unzoomed = coords_unzoomed(mouse,cam);
-                snap_menu.style.top = String(mouse_unzoomed.y) + "px";
-                snap_menu.style.left = String(mouse_unzoomed.x) + "px";
+                //let mouse_unzoomed = coords_unzoomed(mouse,cam);
+                //snap_menu.style.top = String(mouse_unzoomed.y) + "px";
+                //snap_menu.style.left = String(mouse_unzoomed.x) + "px";
             }
             let new_mods = snap_mod_toggle(canvas,key,snap,mouse,lines,snap_menu,unit);
             if (new_mods.length > snap.modifiers.length){

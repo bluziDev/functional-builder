@@ -1,7 +1,5 @@
 improvements:
-    -move input boxes to bottom corner instead of
-    mouse position
-    -enter confirms line
+    -
     
 features:
     -relative angled line creation
