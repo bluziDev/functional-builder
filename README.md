@@ -1,5 +1,5 @@
 Description:
-  A parameterized drawing app where you can 
+  - A parameterized drawing app where you can 
   draw, move and delete lines that snap together. 
 Features:
   - parameterized drawing
@@ -8,18 +8,18 @@ Features:
   - select/move lines
   - NO SAVE FEATURE
 How to Use:
-  Draw Tool:
+  - Draw Tool:
     - Click to start line
-    Optionally enter parameters:
+    - Optionally enter parameters:
       - press a to enter angle
       - press l to enter length
     - click to end line
-  Select Tool:
+  - Select Tool:
     - click to select and move line
-  Remove Tool:
+  - Remove Tool:
     - click to remove line
-  Zoom slider:
+  - Zoom slider:
     - drag slider to change zoom level
-  Panning:
+  - Panning:
     - press spacebar to toggle canvas panning
     - drag canvas with mouse
