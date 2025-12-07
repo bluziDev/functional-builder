@@ -13,7 +13,7 @@
     - Optionally enter parameters:
       - press a to enter angle
       - press l to enter length
-    - click to end line
+    - click or press enter to end line
   - Select Tool:
     - click to select and move line
   - Remove Tool:
