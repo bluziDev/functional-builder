@@ -1,13 +1,13 @@
-Description:
+- Description:
   - A parameterized drawing app where you can 
   draw, move and delete lines that snap together. 
-Features:
+- Features:
   - parameterized drawing
   - snapping
   - zoom in/out
   - select/move lines
   - NO SAVE FEATURE
-How to Use:
+- How to Use:
   - Draw Tool:
     - Click to start line
     - Optionally enter parameters:
